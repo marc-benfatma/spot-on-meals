@@ -11,6 +11,7 @@ interface RestaurantDetailProps {
   isOpen: boolean;
   onClose: () => void;
   onGetDirections: (restaurant: Restaurant) => void;
+  isLoadingRoute?: boolean;
 }
 
 const dayOrder = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
@@ -21,6 +22,7 @@ export function RestaurantDetail({
   isOpen,
   onClose,
   onGetDirections,
+  isLoadingRoute = false,
 }: RestaurantDetailProps) {
   if (!restaurant) return null;
 
@@ -140,9 +142,10 @@ export function RestaurantDetail({
               onClick={() => onGetDirections(restaurant)}
               className="w-full h-12 text-base font-semibold"
               size="lg"
+              disabled={isLoadingRoute}
             >
               <Navigation className="h-5 w-5 mr-2" />
-              Get Directions
+              {isLoadingRoute ? 'Loading route...' : 'Show Walking Route'}
             </Button>
           </div>
         </div>
