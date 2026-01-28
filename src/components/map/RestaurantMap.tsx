@@ -4,6 +4,8 @@ import 'leaflet/dist/leaflet.css';
 import { Restaurant, UserLocation } from '@/types/restaurant';
 import { Button } from '@/components/ui/button';
 import { Navigation, Plus, Minus } from 'lucide-react';
+import { RouteData } from '@/hooks/useWalkingRoute';
+import { RouteInfo } from './RouteInfo';
 
 // Fix for default marker icons in Leaflet with Vite
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -32,6 +34,9 @@ interface RestaurantMapProps {
   restaurants: Restaurant[];
   selectedRestaurant: Restaurant | null;
   onSelectRestaurant: (restaurant: Restaurant) => void;
+  route: RouteData | null;
+  routeRestaurantName: string | null;
+  onClearRoute: () => void;
 }
 
 export function RestaurantMap({
@@ -39,11 +44,15 @@ export function RestaurantMap({
   restaurants,
   selectedRestaurant,
   onSelectRestaurant,
+  route,
+  routeRestaurantName,
+  onClearRoute,
 }: RestaurantMapProps) {
   const mapRef = useRef<L.Map | null>(null);
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const userMarkerRef = useRef<L.Marker | null>(null);
   const restaurantMarkersRef = useRef<Map<string, L.Marker>>(new Map());
+  const routeLayerRef = useRef<L.Polyline | null>(null);
 
   // Default to Paris if no user location
   const defaultCenter: [number, number] = [48.8566, 2.3522];
@@ -151,6 +160,32 @@ export function RestaurantMap({
     );
   }, [selectedRestaurant]);
 
+  // Display route on map
+  useEffect(() => {
+    if (!mapRef.current) return;
+
+    // Remove existing route
+    if (routeLayerRef.current) {
+      routeLayerRef.current.remove();
+      routeLayerRef.current = null;
+    }
+
+    // Add new route if available
+    if (route && route.coordinates.length > 0) {
+      routeLayerRef.current = L.polyline(route.coordinates, {
+        color: 'hsl(160, 60%, 40%)',
+        weight: 5,
+        opacity: 0.8,
+        lineCap: 'round',
+        lineJoin: 'round',
+      }).addTo(mapRef.current);
+
+      // Fit map to show entire route
+      const bounds = routeLayerRef.current.getBounds();
+      mapRef.current.fitBounds(bounds, { padding: [50, 50] });
+    }
+  }, [route]);
+
   const handleRecenter = useCallback(() => {
     if (mapRef.current && userLocation) {
       mapRef.current.flyTo([userLocation.latitude, userLocation.longitude], 15, { duration: 1 });
@@ -198,6 +233,15 @@ export function RestaurantMap({
           </Button>
         )}
       </div>
+
+      {/* Route Info */}
+      {route && routeRestaurantName && (
+        <RouteInfo
+          route={route}
+          restaurantName={routeRestaurantName}
+          onClose={onClearRoute}
+        />
+      )}
     </div>
   );
 }

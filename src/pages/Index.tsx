@@ -7,9 +7,11 @@ import { RestaurantDetail } from '@/components/restaurant/RestaurantDetail';
 import { LocationPermission } from '@/components/LocationPermission';
 import { useUserLocation } from '@/hooks/useUserLocation';
 import { useRestaurants } from '@/hooks/useRestaurants';
+import { useWalkingRoute } from '@/hooks/useWalkingRoute';
 import { getDistanceFromUser } from '@/lib/distance';
 import { Button } from '@/components/ui/button';
 import { Settings } from 'lucide-react';
+import { toast } from 'sonner';
 
 const defaultFilters: Filters = {
   cuisineTypes: [],
@@ -22,11 +24,13 @@ const Index = () => {
   const navigate = useNavigate();
   const { location, error: locationError, isLoading: locationLoading, refetch: refetchLocation } = useUserLocation();
   const { data: restaurants = [], isLoading: restaurantsLoading } = useRestaurants();
+  const { route, isLoading: routeLoading, fetchRoute, clearRoute } = useWalkingRoute(location);
   
   const [selectedRestaurant, setSelectedRestaurant] = useState<Restaurant | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
   const [filters, setFilters] = useState<Filters>(defaultFilters);
   const [searchQuery, setSearchQuery] = useState('');
+  const [routeRestaurantName, setRouteRestaurantName] = useState<string | null>(null);
 
   // Filter restaurants based on search and filters
   const filteredRestaurants = useMemo(() => {
@@ -81,11 +85,25 @@ const Index = () => {
     setDetailOpen(true);
   };
 
-  const handleGetDirections = (restaurant: Restaurant) => {
-    // For now, open in Google Maps
-    // Later we can show route on our map
-    const url = `https://www.google.com/maps/dir/?api=1&destination=${restaurant.latitude},${restaurant.longitude}`;
-    window.open(url, '_blank');
+  const handleGetDirections = async (restaurant: Restaurant) => {
+    if (!location) {
+      toast.error('Location not available');
+      return;
+    }
+
+    setDetailOpen(false);
+    setRouteRestaurantName(restaurant.name);
+    
+    try {
+      await fetchRoute({ latitude: restaurant.latitude, longitude: restaurant.longitude });
+    } catch {
+      toast.error('Failed to get walking directions');
+    }
+  };
+
+  const handleClearRoute = () => {
+    clearRoute();
+    setRouteRestaurantName(null);
   };
 
   // Show location permission screen if still loading or has error
@@ -117,6 +135,9 @@ const Index = () => {
         restaurants={sortedRestaurants}
         selectedRestaurant={selectedRestaurant}
         onSelectRestaurant={handleSelectRestaurant}
+        route={route}
+        routeRestaurantName={routeRestaurantName}
+        onClearRoute={handleClearRoute}
       />
 
       {/* Bottom Sheet */}
@@ -139,6 +160,7 @@ const Index = () => {
         isOpen={detailOpen}
         onClose={() => setDetailOpen(false)}
         onGetDirections={handleGetDirections}
+        isLoadingRoute={routeLoading}
       />
     </div>
   );
