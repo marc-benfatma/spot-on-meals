@@ -1,12 +1,131 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState, useMemo } from 'react';
+import { Restaurant, Filters, UserLocation } from '@/types/restaurant';
+import { RestaurantMap } from '@/components/map/RestaurantMap';
+import { BottomSheet } from '@/components/BottomSheet';
+import { RestaurantDetail } from '@/components/restaurant/RestaurantDetail';
+import { LocationPermission } from '@/components/LocationPermission';
+import { useUserLocation } from '@/hooks/useUserLocation';
+import { useRestaurants } from '@/hooks/useRestaurants';
+import { getDistanceFromUser } from '@/lib/distance';
+
+const defaultFilters: Filters = {
+  cuisineTypes: [],
+  maxDistance: 10,
+  priceRange: [],
+  minRating: 0,
+};
 
 const Index = () => {
+  const { location, error: locationError, isLoading: locationLoading, refetch: refetchLocation } = useUserLocation();
+  const { data: restaurants = [], isLoading: restaurantsLoading } = useRestaurants();
+  
+  const [selectedRestaurant, setSelectedRestaurant] = useState<Restaurant | null>(null);
+  const [detailOpen, setDetailOpen] = useState(false);
+  const [filters, setFilters] = useState<Filters>(defaultFilters);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Filter restaurants based on search and filters
+  const filteredRestaurants = useMemo(() => {
+    return restaurants.filter((restaurant) => {
+      // Search filter
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase();
+        const matchesSearch =
+          restaurant.name.toLowerCase().includes(query) ||
+          restaurant.cuisine_type.toLowerCase().includes(query) ||
+          restaurant.address.toLowerCase().includes(query);
+        if (!matchesSearch) return false;
+      }
+
+      // Cuisine type filter
+      if (filters.cuisineTypes.length > 0) {
+        if (!filters.cuisineTypes.includes(restaurant.cuisine_type)) return false;
+      }
+
+      // Price range filter
+      if (filters.priceRange.length > 0) {
+        if (!filters.priceRange.includes(restaurant.price_level)) return false;
+      }
+
+      // Rating filter
+      if (filters.minRating > 0) {
+        if (restaurant.rating < filters.minRating) return false;
+      }
+
+      // Distance filter
+      if (location) {
+        const distance = getDistanceFromUser(location, restaurant.latitude, restaurant.longitude);
+        if (distance !== null && distance > filters.maxDistance) return false;
+      }
+
+      return true;
+    });
+  }, [restaurants, searchQuery, filters, location]);
+
+  // Sort by distance if location available
+  const sortedRestaurants = useMemo(() => {
+    if (!location) return filteredRestaurants;
+    return [...filteredRestaurants].sort((a, b) => {
+      const distA = getDistanceFromUser(location, a.latitude, a.longitude) || Infinity;
+      const distB = getDistanceFromUser(location, b.latitude, b.longitude) || Infinity;
+      return distA - distB;
+    });
+  }, [filteredRestaurants, location]);
+
+  const handleSelectRestaurant = (restaurant: Restaurant) => {
+    setSelectedRestaurant(restaurant);
+    setDetailOpen(true);
+  };
+
+  const handleGetDirections = (restaurant: Restaurant) => {
+    // For now, open in Google Maps
+    // Later we can show route on our map
+    const url = `https://www.google.com/maps/dir/?api=1&destination=${restaurant.latitude},${restaurant.longitude}`;
+    window.open(url, '_blank');
+  };
+
+  // Show location permission screen if still loading or has error
+  if (locationLoading || locationError) {
+    return (
+      <LocationPermission
+        isLoading={locationLoading}
+        error={locationError}
+        onRetry={refetchLocation}
+      />
+    );
+  }
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
+    <div className="h-screen w-screen overflow-hidden relative">
+      {/* Map */}
+      <RestaurantMap
+        userLocation={location}
+        restaurants={sortedRestaurants}
+        selectedRestaurant={selectedRestaurant}
+        onSelectRestaurant={handleSelectRestaurant}
+      />
+
+      {/* Bottom Sheet */}
+      <BottomSheet
+        restaurants={sortedRestaurants}
+        userLocation={location}
+        selectedRestaurant={selectedRestaurant}
+        onSelectRestaurant={handleSelectRestaurant}
+        filters={filters}
+        onFiltersChange={setFilters}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        isLoading={restaurantsLoading}
+      />
+
+      {/* Restaurant Detail Sheet */}
+      <RestaurantDetail
+        restaurant={selectedRestaurant}
+        userLocation={location}
+        isOpen={detailOpen}
+        onClose={() => setDetailOpen(false)}
+        onGetDirections={handleGetDirections}
+      />
     </div>
   );
 };
