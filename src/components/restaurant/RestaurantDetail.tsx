@@ -85,6 +85,17 @@ export function RestaurantDetail({
                   <span>{formatDistance(distance)} away</span>
                 </div>
               )}
+
+               {/* Get Directions Button */}
+            <Button
+              onClick={() => onGetDirections(restaurant)}
+              className="w-full h-12 text-base font-semibold"
+              size="lg"
+              disabled={isLoadingRoute}
+            >
+              <Navigation className="h-5 w-5 mr-2" />
+              {isLoadingRoute ? 'Loading route...' : 'Show Walking Route'}
+            </Button>
             </div>
 
             {/* Address */}
@@ -137,16 +148,7 @@ export function RestaurantDetail({
               </div>
             </div>
 
-            {/* Get Directions Button */}
-            <Button
-              onClick={() => onGetDirections(restaurant)}
-              className="w-full h-12 text-base font-semibold"
-              size="lg"
-              disabled={isLoadingRoute}
-            >
-              <Navigation className="h-5 w-5 mr-2" />
-              {isLoadingRoute ? 'Loading route...' : 'Show Walking Route'}
-            </Button>
+           
           </div>
         </div>
       </SheetContent>
