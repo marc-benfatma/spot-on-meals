@@ -7,7 +7,9 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
-import Admin from "./pages/Admin";
+import Admin, { AdminIndex } from "./pages/Admin";
+import AdminRestaurants from "./pages/admin/AdminRestaurants";
+import AdminUsers from "./pages/admin/AdminUsers";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -29,7 +31,11 @@ const App = () => (
                   <Admin />
                 </ProtectedRoute>
               }
-            />
+            >
+              <Route index element={<AdminIndex />} />
+              <Route path="restaurants" element={<AdminRestaurants />} />
+              <Route path="users" element={<AdminUsers />} />
+            </Route>
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
