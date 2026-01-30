@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { NavLink } from '@/components/NavLink';
+import { Badge } from '@/components/ui/badge';
 import {
   Sidebar,
   SidebarContent,
@@ -21,13 +22,8 @@ interface AdminLayoutProps {
   children: ReactNode;
 }
 
-const navItems = [
-  { title: 'Restaurants', url: '/admin/restaurants', icon: UtensilsCrossed },
-  { title: 'Users', url: '/admin/users', icon: Users },
-];
-
 export function AdminLayout({ children }: AdminLayoutProps) {
-  const { user, signOut } = useAuth();
+  const { user, signOut, userRole, isAdmin } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -37,6 +33,13 @@ export function AdminLayout({ children }: AdminLayoutProps) {
   };
 
   const isActive = (path: string) => location.pathname === path;
+
+  // Build nav items based on role
+  const navItems = [
+    { title: 'Restaurants', url: '/admin/restaurants', icon: UtensilsCrossed, requiredRole: null },
+    // Only show Users link to admins
+    ...(isAdmin ? [{ title: 'Users', url: '/admin/users', icon: Users, requiredRole: 'admin' as const }] : []),
+  ];
 
   return (
     <SidebarProvider>
@@ -89,9 +92,16 @@ export function AdminLayout({ children }: AdminLayoutProps) {
               </div>
 
               <div className="flex items-center gap-4">
-                <span className="text-sm text-muted-foreground hidden sm:inline">
-                  {user?.email}
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground hidden sm:inline">
+                    {user?.email}
+                  </span>
+                  {userRole && (
+                    <Badge variant={isAdmin ? 'default' : 'secondary'} className="capitalize">
+                      {userRole}
+                    </Badge>
+                  )}
+                </div>
                 <Button variant="outline" size="sm" onClick={handleSignOut}>
                   <LogOut className="h-4 w-4 mr-2" />
                   Sign Out

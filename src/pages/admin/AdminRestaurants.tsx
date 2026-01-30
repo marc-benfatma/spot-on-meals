@@ -4,14 +4,16 @@ import { supabase } from '@/integrations/supabase/client';
 import { Restaurant } from '@/types/restaurant';
 import { RestaurantForm } from '@/components/admin/RestaurantForm';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { Plus, Pencil, Trash2, MapPin, Star } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function AdminRestaurants() {
+  const { isAdmin } = useAuth();
   const { data: restaurants = [], isLoading } = useRestaurants();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingRestaurant, setEditingRestaurant] = useState<Restaurant | null>(null);
@@ -177,13 +179,16 @@ export default function AdminRestaurants() {
                         >
                           <Pencil className="h-4 w-4" />
                         </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => setDeletingRestaurant(restaurant)}
-                        >
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
+                        {/* Only show delete button for admins */}
+                        {isAdmin && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => setDeletingRestaurant(restaurant)}
+                          >
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                          </Button>
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>
@@ -203,23 +208,25 @@ export default function AdminRestaurants() {
         isLoading={isSaving}
       />
 
-      {/* Delete Confirmation */}
-      <AlertDialog open={!!deletingRestaurant} onOpenChange={() => setDeletingRestaurant(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Restaurant</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete "{deletingRestaurant?.name}"? This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {/* Delete Confirmation - Only for admins */}
+      {isAdmin && (
+        <AlertDialog open={!!deletingRestaurant} onOpenChange={() => setDeletingRestaurant(null)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete Restaurant</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to delete "{deletingRestaurant?.name}"? This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
     </div>
   );
 }
