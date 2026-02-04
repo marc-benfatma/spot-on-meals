@@ -9,88 +9,89 @@ All colors MUST be HSL.
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 220 20% 15%;
+    --foreground: 210 29% 24%;
 
     --card: 0 0% 100%;
-    --card-foreground: 220 20% 15%;
+    --card-foreground: 210 29% 24%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 220 20% 15%;
+    --popover-foreground: 210 29% 24%;
 
-    --primary: 160 60% 40%;
+    /* Sophia Red - Primary brand color */
+    --primary: 358 74% 49%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 160 20% 95%;
-    --secondary-foreground: 160 60% 35%;
+    --secondary: 210 20% 96%;
+    --secondary-foreground: 210 29% 24%;
 
     --muted: 210 20% 96%;
-    --muted-foreground: 215 16% 47%;
+    --muted-foreground: 210 14% 45%;
 
-    --accent: 160 40% 92%;
-    --accent-foreground: 160 60% 30%;
+    --accent: 358 74% 95%;
+    --accent-foreground: 358 74% 40%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 210 20% 90%;
-    --input: 210 20% 90%;
-    --ring: 160 60% 40%;
+    --border: 210 20% 88%;
+    --input: 210 20% 88%;
+    --ring: 358 74% 49%;
 
-    --radius: 0.75rem;
+    --radius: 0.25rem;
 
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-background: 210 29% 18%;
+    --sidebar-foreground: 0 0% 95%;
+    --sidebar-primary: 358 74% 49%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 210 29% 24%;
+    --sidebar-accent-foreground: 0 0% 95%;
+    --sidebar-border: 210 29% 25%;
+    --sidebar-ring: 358 74% 49%;
 
     /* Restaurant app specific */
     --map-overlay: 0 0% 100% / 0.95;
-    --restaurant-marker: 160 60% 40%;
+    --restaurant-marker: 358 74% 49%;
     --user-location: 210 100% 50%;
-    --route-line: 160 60% 45%;
+    --route-line: 358 74% 55%;
   }
 
   .dark {
-    --background: 220 20% 10%;
+    --background: 210 29% 12%;
     --foreground: 0 0% 95%;
 
-    --card: 220 20% 12%;
+    --card: 210 29% 15%;
     --card-foreground: 0 0% 95%;
 
-    --popover: 220 20% 12%;
+    --popover: 210 29% 15%;
     --popover-foreground: 0 0% 95%;
 
-    --primary: 160 60% 45%;
+    --primary: 358 74% 52%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 220 20% 18%;
-    --secondary-foreground: 160 40% 70%;
+    --secondary: 210 29% 20%;
+    --secondary-foreground: 0 0% 85%;
 
-    --muted: 220 20% 18%;
-    --muted-foreground: 215 16% 60%;
+    --muted: 210 29% 20%;
+    --muted-foreground: 210 14% 60%;
 
-    --accent: 220 20% 20%;
-    --accent-foreground: 160 40% 70%;
+    --accent: 210 29% 22%;
+    --accent-foreground: 358 74% 70%;
 
-    --destructive: 0 62% 30%;
+    --destructive: 0 62% 40%;
     --destructive-foreground: 0 0% 95%;
 
-    --border: 220 20% 20%;
-    --input: 220 20% 20%;
-    --ring: 160 60% 45%;
+    --border: 210 29% 22%;
+    --input: 210 29% 22%;
+    --ring: 358 74% 52%;
 
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-background: 210 29% 10%;
+    --sidebar-foreground: 0 0% 95%;
+    --sidebar-primary: 358 74% 52%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-accent: 210 29% 18%;
+    --sidebar-accent-foreground: 0 0% 95%;
+    --sidebar-border: 210 29% 18%;
+    --sidebar-ring: 358 74% 52%;
   }
 }
 
@@ -136,7 +137,7 @@ All colors MUST be HSL.
   justify-content: center;
   width: 36px;
   height: 36px;
-  background: hsl(160 60% 40%);
+  background: hsl(358 74% 49%);
   border: 3px solid white;
   border-radius: 50%;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);

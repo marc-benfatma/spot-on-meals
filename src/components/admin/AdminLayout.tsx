@@ -17,6 +17,7 @@ import {
   SidebarTrigger,
 } from '@/components/ui/sidebar';
 import { UtensilsCrossed, Users, LogOut, Menu } from 'lucide-react';
+import logoSvg from '@/assets/logo.svg';
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -45,9 +46,9 @@ export function AdminLayout({ children }: AdminLayoutProps) {
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-muted/30">
         {/* Sidebar */}
-        <Sidebar className="border-r">
-          <div className="p-4 border-b">
-            <h2 className="font-semibold text-lg">Administration</h2>
+        <Sidebar className="border-r bg-sidebar">
+          <div className="p-4 border-b border-sidebar-border">
+            <img src={logoSvg} alt="SophiaServices" className="h-8" />
           </div>
           <SidebarContent>
             <SidebarGroup>
@@ -86,8 +87,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                   </Button>
                 </SidebarTrigger>
                 <div className="flex items-center gap-2">
-                  <UtensilsCrossed className="h-6 w-6 text-primary" />
-                  <span className="font-bold text-xl">SpotOnMeals</span>
+                  <img src={logoSvg} alt="SophiaServices" className="h-8" />
                 </div>
               </div>
 
