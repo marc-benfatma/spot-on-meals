@@ -1,5 +1,4 @@
 import { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Restaurant, Filters, UserLocation } from '@/types/restaurant';
 import { RestaurantMap } from '@/components/map/RestaurantMap';
 import { BottomSheet } from '@/components/BottomSheet';
@@ -9,8 +8,6 @@ import { useUserLocation } from '@/hooks/useUserLocation';
 import { useRestaurants } from '@/hooks/useRestaurants';
 import { useWalkingRoute } from '@/hooks/useWalkingRoute';
 import { getDistanceFromUser } from '@/lib/distance';
-import { Button } from '@/components/ui/button';
-import { Settings } from 'lucide-react';
 import { toast } from 'sonner';
 
 const defaultFilters: Filters = {
@@ -21,7 +18,6 @@ const defaultFilters: Filters = {
 };
 
 const Index = () => {
-  const navigate = useNavigate();
   const { location, error: locationError, isLoading: locationLoading, refetch: refetchLocation } = useUserLocation();
   const { data: restaurants = [], isLoading: restaurantsLoading } = useRestaurants();
   const { route, isLoading: routeLoading, fetchRoute, clearRoute } = useWalkingRoute(location);
@@ -119,15 +115,6 @@ const Index = () => {
 
   return (
     <div className="h-screen w-screen overflow-hidden relative">
-      {/* Admin Button */}
-      <Button
-        variant="secondary"
-        size="icon"
-        onClick={() => navigate('/admin')}
-        className="absolute left-4 top-4 z-[1000] h-10 w-10 rounded-full shadow-lg bg-card hover:bg-accent"
-      >
-        <Settings className="h-5 w-5" />
-      </Button>
 
       {/* Map */}
       <RestaurantMap
