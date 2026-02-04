@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 import { z } from 'zod';
-import logoSvg from '@/assets/logo.svg';
+import logoPng from '@/assets/logo.png';
 
 const authSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -94,7 +94,7 @@ export default function Auth() {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
-            <img src={logoSvg} alt="SophiaServices" className="h-10" />
+            <img src={logoPng} alt="SophiaServices" className="h-10" />
           </div>
           <CardTitle className="text-2xl">
             {isLogin ? 'Admin Login' : 'Create Account'}
