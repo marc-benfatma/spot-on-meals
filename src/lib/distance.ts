@@ -8,9 +8,9 @@ export function calculateDistance(
   lat1: number,
   lon1: number,
   lat2: number,
-  lon2: number
+  lon2: number,
 ): number {
-  const R = 6371; // Earth's radius in kilometers
+  const R = 6371;
   const dLat = toRad(lat2 - lat1);
   const dLon = toRad(lon2 - lon1);
   const a =
@@ -26,14 +26,9 @@ function toRad(deg: number): number {
 }
 
 /**
- * Format distance for display
+ * @deprecated Use formatDistance from '@/lib/format' instead
  */
-export function formatDistance(distance: number): string {
-  if (distance < 1) {
-    return `${Math.round(distance * 1000)} m`;
-  }
-  return `${distance.toFixed(1)} km`;
-}
+export { formatDistance } from '@/lib/format';
 
 /**
  * Calculate distance from user location to a point
@@ -41,13 +36,13 @@ export function formatDistance(distance: number): string {
 export function getDistanceFromUser(
   userLocation: UserLocation | null,
   latitude: number,
-  longitude: number
+  longitude: number,
 ): number | null {
   if (!userLocation) return null;
   return calculateDistance(
     userLocation.latitude,
     userLocation.longitude,
     latitude,
-    longitude
+    longitude,
   );
 }

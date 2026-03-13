@@ -1,7 +1,8 @@
 import { Restaurant, UserLocation } from '@/types/restaurant';
 import { Card } from '@/components/ui/card';
-import { Star, MapPin, Phone } from 'lucide-react';
+import { Star, MapPin } from 'lucide-react';
 import { formatDistance, getDistanceFromUser } from '@/lib/distance';
+import { formatPriceLevel } from '@/lib/format';
 
 interface RestaurantCardProps {
   restaurant: Restaurant;
@@ -16,12 +17,7 @@ export function RestaurantCard({
   onSelect,
   isSelected = false,
 }: RestaurantCardProps) {
-  const distance = getDistanceFromUser(
-    userLocation,
-    restaurant.latitude,
-    restaurant.longitude
-  );
-  const priceLevel = '$'.repeat(restaurant.price_level);
+  const distance = getDistanceFromUser(userLocation, restaurant.latitude, restaurant.longitude);
 
   return (
     <Card
@@ -33,25 +29,19 @@ export function RestaurantCard({
       {/* Restaurant Image */}
       <div className="h-20 w-20 flex-shrink-0 rounded-lg overflow-hidden bg-muted">
         {restaurant.photo_urls[0] ? (
-          <img
-            src={restaurant.photo_urls[0]}
-            alt={restaurant.name}
-            className="h-full w-full object-cover"
-          />
+          <img src={restaurant.photo_urls[0]} alt={restaurant.name} className="h-full w-full object-cover" />
         ) : (
-          <div className="h-full w-full flex items-center justify-center text-2xl">
-            🍽️
-          </div>
+          <div className="h-full w-full flex items-center justify-center text-2xl">🍽️</div>
         )}
       </div>
 
       {/* Restaurant Info */}
       <div className="flex-1 min-w-0">
         <h3 className="font-semibold text-foreground truncate">{restaurant.name}</h3>
-        
+
         <div className="flex items-center gap-2 mt-1">
           <span className="text-sm text-muted-foreground">{restaurant.cuisine_type}</span>
-          <span className="text-sm font-medium text-primary">{priceLevel}</span>
+          <span className="text-sm font-medium text-primary">{formatPriceLevel(restaurant.price_level)}</span>
         </div>
 
         <div className="flex items-center gap-3 mt-2">
@@ -59,7 +49,7 @@ export function RestaurantCard({
             <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
             <span className="text-sm font-medium">{restaurant.rating}</span>
           </div>
-          
+
           {distance !== null && (
             <div className="flex items-center gap-1 text-muted-foreground">
               <MapPin className="h-3 w-3" />

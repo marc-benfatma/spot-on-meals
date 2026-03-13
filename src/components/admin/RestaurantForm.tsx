@@ -3,11 +3,11 @@ import { Restaurant } from '@/types/restaurant';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from '@/components/ui/sheet';
 import { MapPicker } from './MapPicker';
 import { Loader2 } from 'lucide-react';
+import { CUISINE_TYPES, DAYS_OF_WEEK, DEFAULT_COORDINATES } from '@/lib/constants';
 
 interface RestaurantFormProps {
   restaurant: Restaurant | null;
@@ -17,32 +17,21 @@ interface RestaurantFormProps {
   isLoading: boolean;
 }
 
-const CUISINE_TYPES = [
-  'Italian', 'French', 'Japanese', 'Chinese', 'Mexican', 
-  'Indian', 'Thai', 'American', 'Mediterranean', 'Other'
-];
+const INITIAL_FORM_DATA = {
+  name: '',
+  address: '',
+  cuisine_type: 'Italian',
+  latitude: DEFAULT_COORDINATES.latitude,
+  longitude: DEFAULT_COORDINATES.longitude,
+  price_level: 2,
+  rating: 4.0,
+  phone_number: '',
+  photo_urls: [''],
+  opening_hours: {} as Record<string, string>,
+};
 
-const DAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-
-export function RestaurantForm({
-  restaurant,
-  isOpen,
-  onClose,
-  onSave,
-  isLoading,
-}: RestaurantFormProps) {
-  const [formData, setFormData] = useState({
-    name: '',
-    address: '',
-    cuisine_type: 'Italian',
-    latitude: 48.8566,
-    longitude: 2.3522,
-    price_level: 2,
-    rating: 4.0,
-    phone_number: '',
-    photo_urls: [''],
-    opening_hours: {} as Record<string, string>,
-  });
+export function RestaurantForm({ restaurant, isOpen, onClose, onSave, isLoading }: RestaurantFormProps) {
+  const [formData, setFormData] = useState({ ...INITIAL_FORM_DATA });
 
   useEffect(() => {
     if (restaurant) {
@@ -59,103 +48,56 @@ export function RestaurantForm({
         opening_hours: restaurant.opening_hours,
       });
     } else {
-      setFormData({
-        name: '',
-        address: '',
-        cuisine_type: 'Italian',
-        latitude: 48.8566,
-        longitude: 2.3522,
-        price_level: 2,
-        rating: 4.0,
-        phone_number: '',
-        photo_urls: [''],
-        opening_hours: {},
-      });
+      setFormData({ ...INITIAL_FORM_DATA });
     }
   }, [restaurant, isOpen]);
 
+  const updateField = <K extends keyof typeof formData>(key: K, value: (typeof formData)[K]) => {
+    setFormData(prev => ({ ...prev, [key]: value }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const cleanedPhotoUrls = formData.photo_urls.filter(url => url.trim() !== '');
     await onSave({
       ...formData,
-      photo_urls: cleanedPhotoUrls,
+      photo_urls: formData.photo_urls.filter(url => url.trim() !== ''),
     });
-  };
-
-  const handleLocationChange = (lat: number, lng: number) => {
-    setFormData(prev => ({ ...prev, latitude: lat, longitude: lng }));
-  };
-
-  const handleHoursChange = (day: string, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      opening_hours: { ...prev.opening_hours, [day]: value },
-    }));
   };
 
   return (
     <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <SheetContent side="right" className="w-full sm:max-w-lg overflow-y-auto">
         <SheetHeader>
-          <SheetTitle>
-            {restaurant ? 'Edit Restaurant' : 'Add Restaurant'}
-          </SheetTitle>
+          <SheetTitle>{restaurant ? 'Edit Restaurant' : 'Add Restaurant'}</SheetTitle>
         </SheetHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4 py-4">
-          {/* Name */}
           <div className="space-y-2">
             <Label htmlFor="name">Restaurant Name *</Label>
-            <Input
-              id="name"
-              value={formData.name}
-              onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-              required
-            />
+            <Input id="name" value={formData.name} onChange={(e) => updateField('name', e.target.value)} required />
           </div>
 
-          {/* Address */}
           <div className="space-y-2">
             <Label htmlFor="address">Address *</Label>
-            <Input
-              id="address"
-              value={formData.address}
-              onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
-              required
-            />
+            <Input id="address" value={formData.address} onChange={(e) => updateField('address', e.target.value)} required />
           </div>
 
-          {/* Cuisine Type */}
           <div className="space-y-2">
             <Label>Cuisine Type *</Label>
-            <Select
-              value={formData.cuisine_type}
-              onValueChange={(value) => setFormData(prev => ({ ...prev, cuisine_type: value }))}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
+            <Select value={formData.cuisine_type} onValueChange={(v) => updateField('cuisine_type', v)}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
                 {CUISINE_TYPES.map((cuisine) => (
-                  <SelectItem key={cuisine} value={cuisine}>
-                    {cuisine}
-                  </SelectItem>
+                  <SelectItem key={cuisine} value={cuisine}>{cuisine}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
 
-          {/* Price Level */}
           <div className="space-y-2">
             <Label>Price Level *</Label>
-            <Select
-              value={formData.price_level.toString()}
-              onValueChange={(value) => setFormData(prev => ({ ...prev, price_level: parseInt(value) }))}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
+            <Select value={formData.price_level.toString()} onValueChange={(v) => updateField('price_level', parseInt(v))}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="1">$ - Budget</SelectItem>
                 <SelectItem value="2">$$ - Moderate</SelectItem>
@@ -164,63 +106,40 @@ export function RestaurantForm({
             </Select>
           </div>
 
-          {/* Rating */}
           <div className="space-y-2">
             <Label htmlFor="rating">Rating (0-5) *</Label>
             <Input
-              id="rating"
-              type="number"
-              min="0"
-              max="5"
-              step="0.1"
+              id="rating" type="number" min="0" max="5" step="0.1"
               value={formData.rating}
-              onChange={(e) => setFormData(prev => ({ ...prev, rating: parseFloat(e.target.value) || 0 }))}
+              onChange={(e) => updateField('rating', parseFloat(e.target.value) || 0)}
               required
             />
           </div>
 
-          {/* Phone Number */}
           <div className="space-y-2">
             <Label htmlFor="phone">Phone Number</Label>
-            <Input
-              id="phone"
-              value={formData.phone_number}
-              onChange={(e) => setFormData(prev => ({ ...prev, phone_number: e.target.value }))}
-              placeholder="+1 234 567 8900"
-            />
+            <Input id="phone" value={formData.phone_number} onChange={(e) => updateField('phone_number', e.target.value)} placeholder="+1 234 567 8900" />
           </div>
 
-          {/* Photo URL */}
           <div className="space-y-2">
             <Label htmlFor="photo">Photo URL</Label>
-            <Input
-              id="photo"
-              value={formData.photo_urls[0] || ''}
-              onChange={(e) => setFormData(prev => ({ ...prev, photo_urls: [e.target.value] }))}
-              placeholder="https://example.com/photo.jpg"
-            />
+            <Input id="photo" value={formData.photo_urls[0] || ''} onChange={(e) => updateField('photo_urls', [e.target.value])} placeholder="https://example.com/photo.jpg" />
           </div>
 
-          {/* Location Picker */}
           <div className="space-y-2">
             <Label>Location *</Label>
-            <MapPicker
-              latitude={formData.latitude}
-              longitude={formData.longitude}
-              onChange={handleLocationChange}
-            />
+            <MapPicker latitude={formData.latitude} longitude={formData.longitude} onChange={(lat, lng) => setFormData(prev => ({ ...prev, latitude: lat, longitude: lng }))} />
           </div>
 
-          {/* Opening Hours */}
           <div className="space-y-2">
             <Label>Opening Hours</Label>
             <div className="space-y-2">
-              {DAYS.map((day) => (
+              {DAYS_OF_WEEK.map((day) => (
                 <div key={day} className="flex items-center gap-2">
                   <span className="w-24 text-sm capitalize">{day}</span>
                   <Input
                     value={formData.opening_hours[day] || ''}
-                    onChange={(e) => handleHoursChange(day, e.target.value)}
+                    onChange={(e) => setFormData(prev => ({ ...prev, opening_hours: { ...prev.opening_hours, [day]: e.target.value } }))}
                     placeholder="e.g., 11:00-22:00 or closed"
                     className="flex-1"
                   />
@@ -230,9 +149,7 @@ export function RestaurantForm({
           </div>
 
           <SheetFooter className="pt-4">
-            <Button type="button" variant="outline" onClick={onClose}>
-              Cancel
-            </Button>
+            <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
             <Button type="submit" disabled={isLoading}>
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {restaurant ? 'Update' : 'Create'}
