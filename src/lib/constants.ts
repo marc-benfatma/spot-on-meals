@@ -7,10 +7,10 @@ export const DEFAULT_FILTERS: Filters = {
   minRating: 0,
 };
 
-export const DEFAULT_COORDINATES = {
+export const DEFAULT_COORDINATES: { latitude: number; longitude: number } = {
   latitude: 48.8566,
   longitude: 2.3522,
-} as const;
+};
 
 export const CUISINE_TYPES = [
   'Italian', 'French', 'Japanese', 'Chinese', 'Mexican',
