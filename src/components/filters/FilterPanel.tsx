@@ -2,10 +2,10 @@ import { useState } from 'react';
 import { Filters } from '@/types/restaurant';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
-import { Slider } from '@/components/ui/slider';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Badge } from '@/components/ui/badge';
 import { Star } from 'lucide-react';
+import { DEFAULT_FILTERS, DISTANCE_OPTIONS, RATING_OPTIONS } from '@/lib/constants';
 
 interface FilterPanelProps {
   isOpen: boolean;
@@ -15,21 +15,6 @@ interface FilterPanelProps {
   cuisineTypes: string[];
   resultCount: number;
 }
-
-const DISTANCE_OPTIONS = [
-  { value: 0.5, label: '500m' },
-  { value: 1, label: '1 km' },
-  { value: 2, label: '2 km' },
-  { value: 5, label: '5 km' },
-  { value: 10, label: '10 km' },
-];
-
-const RATING_OPTIONS = [
-  { value: 0, label: 'All' },
-  { value: 3, label: '3+' },
-  { value: 4, label: '4+' },
-  { value: 4.5, label: '4.5+' },
-];
 
 export function FilterPanel({
   isOpen,
@@ -52,28 +37,14 @@ export function FilterPanel({
     setLocalFilters({ ...localFilters, priceRange: values.map(Number) });
   };
 
-  const handleDistanceChange = (value: number) => {
-    setLocalFilters({ ...localFilters, maxDistance: value });
-  };
-
-  const handleRatingChange = (value: number) => {
-    setLocalFilters({ ...localFilters, minRating: value });
-  };
-
   const handleApply = () => {
     onApplyFilters(localFilters);
     onClose();
   };
 
   const handleClearAll = () => {
-    const cleared: Filters = {
-      cuisineTypes: [],
-      maxDistance: 10,
-      priceRange: [],
-      minRating: 0,
-    };
-    setLocalFilters(cleared);
-    onApplyFilters(cleared);
+    setLocalFilters({ ...DEFAULT_FILTERS });
+    onApplyFilters({ ...DEFAULT_FILTERS });
   };
 
   return (
@@ -110,7 +81,7 @@ export function FilterPanel({
                   key={option.value}
                   variant={localFilters.maxDistance === option.value ? 'default' : 'outline'}
                   className="cursor-pointer px-3 py-1.5 text-sm"
-                  onClick={() => handleDistanceChange(option.value)}
+                  onClick={() => setLocalFilters({ ...localFilters, maxDistance: option.value })}
                 >
                   {option.label}
                 </Badge>
@@ -142,7 +113,7 @@ export function FilterPanel({
                   key={option.value}
                   variant={localFilters.minRating === option.value ? 'default' : 'outline'}
                   className="cursor-pointer px-3 py-1.5 text-sm flex items-center gap-1"
-                  onClick={() => handleRatingChange(option.value)}
+                  onClick={() => setLocalFilters({ ...localFilters, minRating: option.value })}
                 >
                   {option.value > 0 && <Star className="h-3 w-3 fill-current" />}
                   {option.label}

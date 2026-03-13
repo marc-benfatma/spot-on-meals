@@ -30,24 +30,17 @@ export function useWalkingRoute(userLocation: UserLocation | null): UseWalkingRo
     setError(null);
 
     try {
-      // OSRM API for walking directions
       const url = `https://router.project-osrm.org/route/v1/foot/${userLocation.longitude},${userLocation.latitude};${destination.longitude},${destination.latitude}?overview=full&geometries=geojson`;
-      
+
       const response = await fetch(url);
-      
-      if (!response.ok) {
-        throw new Error('Failed to fetch route');
-      }
+      if (!response.ok) throw new Error('Failed to fetch route');
 
       const data = await response.json();
-
-      if (data.code !== 'Ok' || !data.routes || data.routes.length === 0) {
-        throw new Error('No route found');
-      }
+      if (data.code !== 'Ok' || !data.routes?.length) throw new Error('No route found');
 
       const routeData = data.routes[0];
       const coordinates: [number, number][] = routeData.geometry.coordinates.map(
-        (coord: [number, number]) => [coord[1], coord[0]] // Convert [lng, lat] to [lat, lng] for Leaflet
+        (coord: [number, number]) => [coord[1], coord[0]],
       );
 
       setRoute({
@@ -69,21 +62,4 @@ export function useWalkingRoute(userLocation: UserLocation | null): UseWalkingRo
   }, []);
 
   return { route, isLoading, error, fetchRoute, clearRoute };
-}
-
-export function formatWalkingTime(seconds: number): string {
-  const minutes = Math.round(seconds / 60);
-  if (minutes < 60) {
-    return `${minutes} min`;
-  }
-  const hours = Math.floor(minutes / 60);
-  const remainingMinutes = minutes % 60;
-  return remainingMinutes > 0 ? `${hours}h ${remainingMinutes}min` : `${hours}h`;
-}
-
-export function formatWalkingDistance(meters: number): string {
-  if (meters < 1000) {
-    return `${Math.round(meters)} m`;
-  }
-  return `${(meters / 1000).toFixed(1)} km`;
 }

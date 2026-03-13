@@ -1,6 +1,7 @@
 import { X, Footprints, Clock, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { RouteData, formatWalkingTime, formatWalkingDistance } from '@/hooks/useWalkingRoute';
+import { RouteData } from '@/hooks/useWalkingRoute';
+import { formatWalkingTime, formatWalkingDistance } from '@/lib/format';
 
 interface RouteInfoProps {
   route: RouteData;
@@ -33,12 +34,7 @@ export function RouteInfo({ route, restaurantName, onClose }: RouteInfoProps) {
             </div>
           </div>
         </div>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={onClose}
-          className="h-8 w-8 rounded-full shrink-0"
-        >
+        <Button variant="ghost" size="icon" onClick={onClose} className="h-8 w-8 rounded-full shrink-0">
           <X className="h-4 w-4" />
         </Button>
       </div>

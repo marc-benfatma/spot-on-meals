@@ -6,28 +6,9 @@ import { Button } from '@/components/ui/button';
 import { Navigation, Plus, Minus } from 'lucide-react';
 import { RouteData } from '@/hooks/useWalkingRoute';
 import { RouteInfo } from './RouteInfo';
-
-// Fix for default marker icons in Leaflet with Vite
-delete (L.Icon.Default.prototype as any)._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
-  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
-});
-
-// Custom icons
-const userIcon = L.divIcon({
-  className: 'user-location-marker',
-  iconSize: [20, 20],
-  iconAnchor: [10, 10],
-});
-
-const restaurantIcon = L.divIcon({
-  className: 'restaurant-marker',
-  html: `<div style="display:flex;align-items:center;justify-content:center;width:36px;height:36px;background:hsl(160 60% 40%);border:3px solid white;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,0.2);color:white;font-size:14px;">🍽️</div>`,
-  iconSize: [36, 36],
-  iconAnchor: [18, 18],
-});
+import { userLocationIcon, restaurantMarkerIcon, createRestaurantPopupHtml } from '@/lib/leaflet-config';
+import { formatPriceLevel } from '@/lib/format';
+import { DEFAULT_COORDINATES } from '@/lib/constants';
 
 interface RestaurantMapProps {
   userLocation: UserLocation | null;
@@ -54,18 +35,16 @@ export function RestaurantMap({
   const restaurantMarkersRef = useRef<Map<string, L.Marker>>(new Map());
   const routeLayerRef = useRef<L.Polyline | null>(null);
 
-  // Default to Paris if no user location
-  const defaultCenter: [number, number] = [48.8566, 2.3522];
   const center: [number, number] = userLocation
     ? [userLocation.latitude, userLocation.longitude]
-    : defaultCenter;
+    : [DEFAULT_COORDINATES.latitude, DEFAULT_COORDINATES.longitude];
 
   // Initialize map
   useEffect(() => {
     if (!mapContainerRef.current || mapRef.current) return;
 
     const map = L.map(mapContainerRef.current, {
-      center: center,
+      center,
       zoom: 14,
       zoomControl: false,
     });
@@ -88,16 +67,15 @@ export function RestaurantMap({
 
     if (userLocation) {
       const pos: [number, number] = [userLocation.latitude, userLocation.longitude];
-      
+
       if (userMarkerRef.current) {
         userMarkerRef.current.setLatLng(pos);
       } else {
-        userMarkerRef.current = L.marker(pos, { icon: userIcon })
+        userMarkerRef.current = L.marker(pos, { icon: userLocationIcon })
           .addTo(mapRef.current)
           .bindPopup('<span style="font-weight:500;">You are here</span>');
       }
 
-      // Center on user location initially
       mapRef.current.setView(pos, 14);
     }
   }, [userLocation]);
@@ -109,7 +87,7 @@ export function RestaurantMap({
     const currentMarkers = restaurantMarkersRef.current;
     const restaurantIds = new Set(restaurants.map(r => r.id));
 
-    // Remove markers that are no longer in the list
+    // Remove stale markers
     currentMarkers.forEach((marker, id) => {
       if (!restaurantIds.has(id)) {
         marker.remove();
@@ -120,31 +98,22 @@ export function RestaurantMap({
     // Add or update markers
     restaurants.forEach((restaurant) => {
       const pos: [number, number] = [restaurant.latitude, restaurant.longitude];
-      const priceLevel = '$'.repeat(restaurant.price_level);
 
       if (currentMarkers.has(restaurant.id)) {
         currentMarkers.get(restaurant.id)!.setLatLng(pos);
       } else {
-        const marker = L.marker(pos, { icon: restaurantIcon })
+        const popupHtml = createRestaurantPopupHtml(
+          restaurant.name,
+          restaurant.cuisine_type,
+          formatPriceLevel(restaurant.price_level),
+          restaurant.rating,
+        );
+
+        const marker = L.marker(pos, { icon: restaurantMarkerIcon })
           .addTo(mapRef.current!)
-          .bindPopup(`
-            <div style="min-width:180px;padding:4px;">
-              <h3 style="font-weight:600;font-size:14px;margin-bottom:4px;">${restaurant.name}</h3>
-              <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:#666;margin-bottom:4px;">
-                <span>${restaurant.cuisine_type}</span>
-                <span style="color:hsl(160 60% 40%);font-weight:500;">${priceLevel}</span>
-              </div>
-              <div style="display:flex;align-items:center;gap:4px;font-size:12px;">
-                <span style="color:#facc15;">★</span>
-                <span style="font-weight:500;">${restaurant.rating}</span>
-              </div>
-            </div>
-          `);
+          .bindPopup(popupHtml);
 
-        marker.on('click', () => {
-          onSelectRestaurant(restaurant);
-        });
-
+        marker.on('click', () => onSelectRestaurant(restaurant));
         currentMarkers.set(restaurant.id, marker);
       }
     });
@@ -156,7 +125,7 @@ export function RestaurantMap({
     mapRef.current.flyTo(
       [selectedRestaurant.latitude, selectedRestaurant.longitude],
       16,
-      { duration: 0.8 }
+      { duration: 0.8 },
     );
   }, [selectedRestaurant]);
 
@@ -164,13 +133,11 @@ export function RestaurantMap({
   useEffect(() => {
     if (!mapRef.current) return;
 
-    // Remove existing route
     if (routeLayerRef.current) {
       routeLayerRef.current.remove();
       routeLayerRef.current = null;
     }
 
-    // Add new route if available
     if (route && route.coordinates.length > 0) {
       routeLayerRef.current = L.polyline(route.coordinates, {
         color: 'hsl(160, 60%, 40%)',
@@ -180,7 +147,6 @@ export function RestaurantMap({
         lineJoin: 'round',
       }).addTo(mapRef.current);
 
-      // Fit map to show entire route
       const bounds = routeLayerRef.current.getBounds();
       mapRef.current.fitBounds(bounds, { padding: [50, 50] });
     }
@@ -192,43 +158,23 @@ export function RestaurantMap({
     }
   }, [userLocation]);
 
-  const handleZoomIn = useCallback(() => {
-    mapRef.current?.zoomIn();
-  }, []);
-
-  const handleZoomOut = useCallback(() => {
-    mapRef.current?.zoomOut();
-  }, []);
+  const handleZoomIn = useCallback(() => mapRef.current?.zoomIn(), []);
+  const handleZoomOut = useCallback(() => mapRef.current?.zoomOut(), []);
 
   return (
     <div className="relative h-full w-full">
       <div ref={mapContainerRef} className="h-full w-full" />
-      
+
       {/* Map Controls */}
       <div className="absolute right-4 top-4 z-[1000] flex flex-col gap-2">
-        <Button
-          variant="secondary"
-          size="icon"
-          onClick={handleZoomIn}
-          className="h-10 w-10 rounded-full shadow-lg bg-card hover:bg-accent"
-        >
+        <Button variant="secondary" size="icon" onClick={handleZoomIn} className="h-10 w-10 rounded-full shadow-lg bg-card hover:bg-accent">
           <Plus className="h-5 w-5" />
         </Button>
-        <Button
-          variant="secondary"
-          size="icon"
-          onClick={handleZoomOut}
-          className="h-10 w-10 rounded-full shadow-lg bg-card hover:bg-accent"
-        >
+        <Button variant="secondary" size="icon" onClick={handleZoomOut} className="h-10 w-10 rounded-full shadow-lg bg-card hover:bg-accent">
           <Minus className="h-5 w-5" />
         </Button>
         {userLocation && (
-          <Button
-            variant="secondary"
-            size="icon"
-            onClick={handleRecenter}
-            className="h-10 w-10 rounded-full shadow-lg bg-card hover:bg-accent mt-2"
-          >
+          <Button variant="secondary" size="icon" onClick={handleRecenter} className="h-10 w-10 rounded-full shadow-lg bg-card hover:bg-accent mt-2">
             <Navigation className="h-5 w-5 text-primary" />
           </Button>
         )}
@@ -236,11 +182,7 @@ export function RestaurantMap({
 
       {/* Route Info */}
       {route && routeRestaurantName && (
-        <RouteInfo
-          route={route}
-          restaurantName={routeRestaurantName}
-          onClose={onClearRoute}
-        />
+        <RouteInfo route={route} restaurantName={routeRestaurantName} onClose={onClearRoute} />
       )}
     </div>
   );
