@@ -12,7 +12,11 @@ import { DEFAULT_FILTERS, DEFAULT_COORDINATES } from '@/lib/constants';
 import { toast } from 'sonner';
 
 const Index = () => {
-  const { location, error: locationError, isLoading: locationLoading, refetch: refetchLocation } = useUserLocation();
+  const { location: geoLocation, error: locationError, isLoading: locationLoading, refetch: refetchLocation } = useUserLocation();
+  
+  // Use geolocation if available, fallback to default coordinates (Paris)
+  const location = geoLocation || (locationLoading ? null : DEFAULT_COORDINATES);
+  
   const { data: restaurants = [], isLoading: restaurantsLoading } = useRestaurants();
   const { route, isLoading: routeLoading, fetchRoute, clearRoute } = useWalkingRoute(location);
 
@@ -53,7 +57,8 @@ const Index = () => {
     setRouteRestaurantName(null);
   };
 
-  if (locationLoading || locationError) {
+  // Only show location permission screen while loading
+  if (locationLoading) {
     return (
       <LocationPermission
         isLoading={locationLoading}
