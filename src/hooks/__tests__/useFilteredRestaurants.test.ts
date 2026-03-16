@@ -91,7 +91,7 @@ describe('useFilteredRestaurants', () => {
   });
 
   it('sorts by distance when user location provided', () => {
-    const farRestaurant = makeRestaurant({ id: '4', name: 'Far Away', latitude: 49.0, longitude: 2.5 });
+    const farRestaurant = makeRestaurant({ id: '4', name: 'Far Away', latitude: 48.9, longitude: 2.4 });
     const nearRestaurant = makeRestaurant({ id: '5', name: 'Close By', latitude: 48.857, longitude: 2.353 });
     const userLocation = { latitude: 48.8566, longitude: 2.3522 };
 
