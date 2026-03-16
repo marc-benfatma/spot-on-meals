@@ -8,7 +8,7 @@ import { useUserLocation } from '@/hooks/useUserLocation';
 import { useRestaurants } from '@/hooks/useRestaurants';
 import { useWalkingRoute } from '@/hooks/useWalkingRoute';
 import { useFilteredRestaurants } from '@/hooks/useFilteredRestaurants';
-import { DEFAULT_FILTERS } from '@/lib/constants';
+import { DEFAULT_FILTERS, DEFAULT_COORDINATES } from '@/lib/constants';
 import { toast } from 'sonner';
 
 const Index = () => {
