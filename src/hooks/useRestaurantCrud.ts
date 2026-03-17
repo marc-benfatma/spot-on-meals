@@ -1,74 +1,81 @@
-import { useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Restaurant } from '@/types/restaurant';
-import { useQueryClient } from '@tanstack/react-query';
+import { createRestaurant, updateRestaurant, deleteRestaurant } from '@/services/restaurant.service';
+import { RESTAURANTS_QUERY_KEY } from './useRestaurants';
 import { useToast } from '@/hooks/use-toast';
 
 export function useRestaurantCrud() {
-  const [isSaving, setIsSaving] = useState(false);
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  const saveRestaurant = async (data: Partial<Restaurant>, existingId?: string) => {
-    setIsSaving(true);
-    try {
+  const saveMutation = useMutation({
+    mutationFn: async ({ data, existingId }: { data: Partial<Restaurant>; existingId?: string }) => {
       if (existingId) {
-        const { error } = await supabase
-          .from('restaurants')
-          .update(data)
-          .eq('id', existingId);
-        if (error) throw error;
-        toast({ title: 'Restaurant updated', description: `${data.name} has been updated.` });
+        await updateRestaurant(existingId, data);
       } else {
-        const insertData = {
-          name: data.name!,
-          address: data.address!,
-          cuisine_type: data.cuisine_type!,
-          latitude: data.latitude!,
-          longitude: data.longitude!,
-          price_level: data.price_level!,
-          rating: data.rating!,
-          phone_number: data.phone_number,
-          photo_urls: data.photo_urls,
-          opening_hours: data.opening_hours,
-        };
-        const { error } = await supabase.from('restaurants').insert([insertData]);
-        if (error) throw error;
-        toast({ title: 'Restaurant added', description: `${data.name} has been created.` });
+        await createRestaurant(data);
       }
-      queryClient.invalidateQueries({ queryKey: ['restaurants'] });
-      return true;
-    } catch (error: any) {
+      return { name: data.name, isUpdate: !!existingId };
+    },
+    onSuccess: ({ name, isUpdate }) => {
+      queryClient.invalidateQueries({ queryKey: RESTAURANTS_QUERY_KEY });
+      toast({
+        title: isUpdate ? 'Restaurant updated' : 'Restaurant added',
+        description: `${name} has been ${isUpdate ? 'updated' : 'created'}.`,
+      });
+    },
+    onError: (error: Error) => {
       toast({
         title: 'Error',
         description: error.message || 'Failed to save restaurant',
         variant: 'destructive',
       });
-      return false;
-    } finally {
-      setIsSaving(false);
-    }
-  };
+    },
+  });
 
-  const deleteRestaurant = async (restaurant: Restaurant) => {
-    try {
-      const { error } = await supabase
-        .from('restaurants')
-        .delete()
-        .eq('id', restaurant.id);
-      if (error) throw error;
-      toast({ title: 'Restaurant deleted', description: `${restaurant.name} has been removed.` });
-      queryClient.invalidateQueries({ queryKey: ['restaurants'] });
-      return true;
-    } catch (error: any) {
+  const deleteMutation = useMutation({
+    mutationFn: async (restaurant: Restaurant) => {
+      await deleteRestaurant(restaurant.id);
+      return restaurant.name;
+    },
+    onSuccess: (name) => {
+      queryClient.invalidateQueries({ queryKey: RESTAURANTS_QUERY_KEY });
+      toast({
+        title: 'Restaurant deleted',
+        description: `${name} has been removed.`,
+      });
+    },
+    onError: (error: Error) => {
       toast({
         title: 'Error',
         description: error.message || 'Failed to delete restaurant',
         variant: 'destructive',
       });
+    },
+  });
+
+  const saveRestaurant = async (data: Partial<Restaurant>, existingId?: string): Promise<boolean> => {
+    try {
+      await saveMutation.mutateAsync({ data, existingId });
+      return true;
+    } catch {
       return false;
     }
   };
 
-  return { saveRestaurant, deleteRestaurant, isSaving };
+  const removeRestaurant = async (restaurant: Restaurant): Promise<boolean> => {
+    try {
+      await deleteMutation.mutateAsync(restaurant);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  return {
+    saveRestaurant,
+    deleteRestaurant: removeRestaurant,
+    isSaving: saveMutation.isPending,
+    isDeleting: deleteMutation.isPending,
+  };
 }

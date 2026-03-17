@@ -1,11 +1,8 @@
 import { useState, useCallback } from 'react';
 import { UserLocation } from '@/types/restaurant';
+import { fetchWalkingRoute, RouteData } from '@/services/routing.service';
 
-export interface RouteData {
-  coordinates: [number, number][];
-  distance: number; // in meters
-  duration: number; // in seconds
-}
+export type { RouteData } from '@/services/routing.service';
 
 interface UseWalkingRouteReturn {
   route: RouteData | null;
@@ -30,24 +27,8 @@ export function useWalkingRoute(userLocation: UserLocation | null): UseWalkingRo
     setError(null);
 
     try {
-      const url = `https://router.project-osrm.org/route/v1/foot/${userLocation.longitude},${userLocation.latitude};${destination.longitude},${destination.latitude}?overview=full&geometries=geojson`;
-
-      const response = await fetch(url);
-      if (!response.ok) throw new Error('Failed to fetch route');
-
-      const data = await response.json();
-      if (data.code !== 'Ok' || !data.routes?.length) throw new Error('No route found');
-
-      const routeData = data.routes[0];
-      const coordinates: [number, number][] = routeData.geometry.coordinates.map(
-        (coord: [number, number]) => [coord[1], coord[0]],
-      );
-
-      setRoute({
-        coordinates,
-        distance: routeData.distance,
-        duration: routeData.duration,
-      });
+      const routeData = await fetchWalkingRoute(userLocation, destination);
+      setRoute(routeData);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to get directions');
       setRoute(null);
