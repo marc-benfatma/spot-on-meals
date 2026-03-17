@@ -4,12 +4,14 @@ import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useRestaurantCrud } from '../useRestaurantCrud';
 
-// Mock supabase
-const mockFrom = vi.fn();
-vi.mock('@/integrations/supabase/client', () => ({
-  supabase: {
-    from: (...args: any[]) => mockFrom(...args),
-  },
+// Mock the service layer
+const mockCreate = vi.fn();
+const mockUpdate = vi.fn();
+const mockDelete = vi.fn();
+vi.mock('@/services/restaurant.service', () => ({
+  createRestaurant: (...args: any[]) => mockCreate(...args),
+  updateRestaurant: (...args: any[]) => mockUpdate(...args),
+  deleteRestaurant: (...args: any[]) => mockDelete(...args),
 }));
 
 // Mock toast
@@ -31,9 +33,7 @@ describe('useRestaurantCrud', () => {
 
   describe('saveRestaurant', () => {
     it('inserts a new restaurant', async () => {
-      mockFrom.mockReturnValue({
-        insert: vi.fn().mockResolvedValue({ error: null }),
-      });
+      mockCreate.mockResolvedValue(undefined);
 
       const { result } = renderHook(() => useRestaurantCrud(), { wrapper: createWrapper() });
 
@@ -51,15 +51,12 @@ describe('useRestaurantCrud', () => {
       });
 
       expect(success!).toBe(true);
-      expect(mockFrom).toHaveBeenCalledWith('restaurants');
+      expect(mockCreate).toHaveBeenCalled();
       expect(mockToast).toHaveBeenCalledWith(expect.objectContaining({ title: 'Restaurant added' }));
     });
 
     it('updates an existing restaurant', async () => {
-      const mockEq = vi.fn().mockResolvedValue({ error: null });
-      mockFrom.mockReturnValue({
-        update: vi.fn().mockReturnValue({ eq: mockEq }),
-      });
+      mockUpdate.mockResolvedValue(undefined);
 
       const { result } = renderHook(() => useRestaurantCrud(), { wrapper: createWrapper() });
 
@@ -69,14 +66,12 @@ describe('useRestaurantCrud', () => {
       });
 
       expect(success!).toBe(true);
-      expect(mockEq).toHaveBeenCalledWith('id', 'existing-id');
+      expect(mockUpdate).toHaveBeenCalledWith('existing-id', { name: 'Updated' });
       expect(mockToast).toHaveBeenCalledWith(expect.objectContaining({ title: 'Restaurant updated' }));
     });
 
     it('handles save errors', async () => {
-      mockFrom.mockReturnValue({
-        insert: vi.fn().mockResolvedValue({ error: { message: 'DB error' } }),
-      });
+      mockCreate.mockRejectedValue(new Error('DB error'));
 
       const { result } = renderHook(() => useRestaurantCrud(), { wrapper: createWrapper() });
 
@@ -100,10 +95,7 @@ describe('useRestaurantCrud', () => {
 
   describe('deleteRestaurant', () => {
     it('deletes a restaurant', async () => {
-      const mockEq = vi.fn().mockResolvedValue({ error: null });
-      mockFrom.mockReturnValue({
-        delete: vi.fn().mockReturnValue({ eq: mockEq }),
-      });
+      mockDelete.mockResolvedValue(undefined);
 
       const { result } = renderHook(() => useRestaurantCrud(), { wrapper: createWrapper() });
 
@@ -116,14 +108,12 @@ describe('useRestaurantCrud', () => {
       });
 
       expect(success!).toBe(true);
+      expect(mockDelete).toHaveBeenCalledWith('abc');
       expect(mockToast).toHaveBeenCalledWith(expect.objectContaining({ title: 'Restaurant deleted' }));
     });
 
     it('handles delete errors', async () => {
-      const mockEq = vi.fn().mockResolvedValue({ error: { message: 'Not found' } });
-      mockFrom.mockReturnValue({
-        delete: vi.fn().mockReturnValue({ eq: mockEq }),
-      });
+      mockDelete.mockRejectedValue(new Error('Not found'));
 
       const { result } = renderHook(() => useRestaurantCrud(), { wrapper: createWrapper() });
 
