@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from '@/components/ui/sheet';
 import { MapPicker } from './MapPicker';
+import { AddressAutocomplete } from './AddressAutocomplete';
 import { Loader2 } from 'lucide-react';
 import { CUISINE_TYPES, DAYS_OF_WEEK, DEFAULT_COORDINATES } from '@/lib/constants';
 
