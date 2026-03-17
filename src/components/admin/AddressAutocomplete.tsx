@@ -2,12 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { Input } from '@/components/ui/input';
 import { MapPin, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-
-interface AddressSuggestion {
-  display_name: string;
-  lat: string;
-  lon: string;
-}
+import { searchAddress, GeocodingResult } from '@/services/geocoding.service';
 
 interface AddressAutocompleteProps {
   value: string;
@@ -19,7 +14,7 @@ interface AddressAutocompleteProps {
 
 export function AddressAutocomplete({ value, onChange, placeholder = "Search for an address...", required, id }: AddressAutocompleteProps) {
   const [query, setQuery] = useState(value);
-  const [suggestions, setSuggestions] = useState<AddressSuggestion[]>([]);
+  const [suggestions, setSuggestions] = useState<GeocodingResult[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
@@ -40,7 +35,7 @@ export function AddressAutocomplete({ value, onChange, placeholder = "Search for
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const searchAddress = useCallback(async (q: string) => {
+  const performSearch = useCallback(async (q: string) => {
     if (q.length < 3) {
       setSuggestions([]);
       setIsOpen(false);
@@ -48,11 +43,7 @@ export function AddressAutocomplete({ value, onChange, placeholder = "Search for
     }
     setIsLoading(true);
     try {
-      const res = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&limit=5&addressdetails=1`,
-        { headers: { 'Accept-Language': 'fr' } }
-      );
-      const data: AddressSuggestion[] = await res.json();
+      const data = await searchAddress(q);
       setSuggestions(data);
       setIsOpen(data.length > 0);
       setHighlightedIndex(-1);
@@ -67,10 +58,10 @@ export function AddressAutocomplete({ value, onChange, placeholder = "Search for
     setQuery(val);
     onChange(val);
     clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => searchAddress(val), 400);
+    debounceRef.current = setTimeout(() => performSearch(val), 400);
   };
 
-  const handleSelect = (suggestion: AddressSuggestion) => {
+  const handleSelect = (suggestion: GeocodingResult) => {
     setQuery(suggestion.display_name);
     onChange(suggestion.display_name, parseFloat(suggestion.lat), parseFloat(suggestion.lon));
     setIsOpen(false);

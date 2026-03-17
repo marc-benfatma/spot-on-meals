@@ -1,6 +1,6 @@
 import { X, Footprints, Clock, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { RouteData } from '@/hooks/useWalkingRoute';
+import { RouteData } from '@/services/routing.service';
 import { formatWalkingTime, formatWalkingDistance } from '@/lib/format';
 
 interface RouteInfoProps {
