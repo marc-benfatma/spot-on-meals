@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from '@/components/ui/sheet';
 import { MapPicker } from './MapPicker';
+import { AddressAutocomplete } from './AddressAutocomplete';
 import { Loader2 } from 'lucide-react';
 import { CUISINE_TYPES, DAYS_OF_WEEK, DEFAULT_COORDINATES } from '@/lib/constants';
 
@@ -79,7 +80,17 @@ export function RestaurantForm({ restaurant, isOpen, onClose, onSave, isLoading 
 
           <div className="space-y-2">
             <Label htmlFor="address">Address *</Label>
-            <Input id="address" value={formData.address} onChange={(e) => updateField('address', e.target.value)} required />
+            <AddressAutocomplete
+              id="address"
+              value={formData.address}
+              onChange={(address, lat, lng) => {
+                updateField('address', address);
+                if (lat !== undefined && lng !== undefined) {
+                  setFormData(prev => ({ ...prev, latitude: lat, longitude: lng }));
+                }
+              }}
+              required
+            />
           </div>
 
           <div className="space-y-2">
