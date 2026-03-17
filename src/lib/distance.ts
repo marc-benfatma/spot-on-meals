@@ -1,7 +1,7 @@
 import { UserLocation } from '@/types/restaurant';
 
 /**
- * Calculate distance between two points using Haversine formula
+ * Calculate distance between two points using Haversine formula.
  * @returns distance in kilometers
  */
 export function calculateDistance(
@@ -26,12 +26,8 @@ function toRad(deg: number): number {
 }
 
 /**
- * @deprecated Use formatDistance from '@/lib/format' instead
- */
-export { formatDistance } from '@/lib/format';
-
-/**
- * Calculate distance from user location to a point
+ * Calculate distance from user location to a point.
+ * @returns distance in km, or null if no user location.
  */
 export function getDistanceFromUser(
   userLocation: UserLocation | null,
@@ -46,3 +42,6 @@ export function getDistanceFromUser(
     longitude,
   );
 }
+
+// Re-export formatDistance for backward compatibility in components that import from here
+export { formatDistance } from '@/lib/format';
