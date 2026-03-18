@@ -16,7 +16,7 @@ export async function fetchWalkingRoute(
   const response = await fetch(url);
   if (!response.ok) throw new Error('Failed to fetch route');
 
-  const data = await response.json();
+  const data: OsrmResponse = await response.json();
   if (data.code !== 'Ok' || !data.routes?.length) throw new Error('No route found');
 
   const route = data.routes[0];
