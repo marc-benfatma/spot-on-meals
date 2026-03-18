@@ -1,6 +1,6 @@
 import { Restaurant, UserLocation } from '@/types/restaurant';
 import { RestaurantCard } from './RestaurantCard';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { Loader2 } from 'lucide-react';
 import { Loader2 } from 'lucide-react';
 
 interface RestaurantListProps {

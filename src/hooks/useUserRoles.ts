@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { fetchAllUserRoles, updateUserRole, deleteUserRole, AppRole, UserRole } from '@/services/user-role.service';
+import { fetchAllUserRoles, updateUserRole, deleteUserRole, AppRole } from '@/services/user-role.service';
 import { useToast } from '@/hooks/use-toast';
 
 const USER_ROLES_QUERY_KEY = ['user-roles'] as const;

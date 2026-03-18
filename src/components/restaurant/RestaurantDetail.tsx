@@ -27,7 +27,6 @@ export function RestaurantDetail({
 
   const distance = getDistanceFromUser(userLocation, restaurant.latitude, restaurant.longitude);
   const today = new Date().toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
-  const todayHours = restaurant.opening_hours[today] || 'Closed';
 
   return (
     <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
