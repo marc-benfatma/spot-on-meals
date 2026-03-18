@@ -78,7 +78,7 @@ export default function Auth() {
           setIsLogin(true);
         }
       }
-    } catch (err) {
+    } catch {
       toast({
         title: 'Error',
         description: 'An unexpected error occurred. Please try again.',
