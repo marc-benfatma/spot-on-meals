@@ -4,6 +4,17 @@ export interface RouteData {
   duration: number; // in seconds
 }
 
+interface OsrmRoute {
+  geometry: { coordinates: [number, number][] };
+  distance: number;
+  duration: number;
+}
+
+interface OsrmResponse {
+  code: string;
+  routes?: OsrmRoute[];
+}
+
 /**
  * Fetch a walking route between two points using OSRM.
  */
