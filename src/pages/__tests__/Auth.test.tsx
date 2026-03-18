@@ -65,9 +65,17 @@ describe('Auth', () => {
     const user = userEvent.setup();
     render(<Auth />);
 
-    await user.type(screen.getByLabelText('Email'), 'invalid');
-    await user.type(screen.getByLabelText('Password'), 'password123');
-    await user.click(screen.getByRole('button', { name: 'Sign In' }));
+    const emailInput = screen.getByLabelText('Email');
+    const passwordInput = screen.getByLabelText('Password');
+
+    await user.clear(emailInput);
+    await user.type(emailInput, 'invalid-email');
+    await user.clear(passwordInput);
+    await user.type(passwordInput, 'password123');
+
+    // Submit via form button
+    const submitBtn = screen.getByRole('button', { name: 'Sign In' });
+    await user.click(submitBtn);
 
     await waitFor(() => {
       expect(mockToast).toHaveBeenCalledWith(
