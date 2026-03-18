@@ -54,11 +54,11 @@ describe('Auth', () => {
     render(<Auth />);
 
     await user.click(screen.getByText("Don't have an account? Sign up"));
-    expect(screen.getByText('Create Account')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Create Account' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Create Account' })).toBeInTheDocument();
 
     await user.click(screen.getByText('Already have an account? Sign in'));
-    expect(screen.getByText('Admin Login')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Admin Login' })).toBeInTheDocument();
   });
 
   it('validates email format', async () => {
