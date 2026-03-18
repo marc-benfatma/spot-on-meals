@@ -65,17 +65,11 @@ describe('Auth', () => {
     const user = userEvent.setup();
     render(<Auth />);
 
-    const emailInput = screen.getByLabelText('Email');
-    const passwordInput = screen.getByLabelText('Password');
+    await user.type(screen.getByLabelText('Email'), 'invalid-email');
+    await user.type(screen.getByLabelText('Password'), 'password123');
 
-    await user.clear(emailInput);
-    await user.type(emailInput, 'invalid-email');
-    await user.clear(passwordInput);
-    await user.type(passwordInput, 'password123');
-
-    // Submit via form button
-    const submitBtn = screen.getByRole('button', { name: 'Sign In' });
-    await user.click(submitBtn);
+    // Use fireEvent.submit to bypass HTML5 email validation
+    fireEvent.submit(screen.getByRole('button', { name: 'Sign In' }).closest('form')!);
 
     await waitFor(() => {
       expect(mockToast).toHaveBeenCalledWith(
