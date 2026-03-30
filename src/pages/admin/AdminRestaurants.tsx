@@ -12,7 +12,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { formatPriceLevel } from '@/lib/format';
 
 export default function AdminRestaurants() {
-  const { isAdmin } = useAuth();
+  const { isAdmin, canEdit } = useAuth();
   const { data: restaurants = [], isLoading } = useRestaurants();
   const { saveRestaurant, deleteRestaurant, isSaving } = useRestaurantCrud();
   const [isFormOpen, setIsFormOpen] = useState(false);
