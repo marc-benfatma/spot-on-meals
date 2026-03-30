@@ -6,6 +6,7 @@ import { Loader2 } from 'lucide-react';
 interface ProtectedRouteProps {
   children: ReactNode;
   requireAdmin?: boolean;
+  requireEdit?: boolean;
 }
 
 export function ProtectedRoute({ children, requireAdmin = false }: ProtectedRouteProps) {
