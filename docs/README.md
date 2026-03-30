@@ -200,3 +200,19 @@ npm run build        # Build de production
 npm test             # Lancer les tests
 npm run lint         # Linting ESLint
 ```
+
+---
+
+## Documents projet
+
+Les documents de conception et de cadrage du projet sont disponibles dans le dossier `docs/` :
+
+| Fichier | Description |
+|---------|-------------|
+| [PRD_Template.pdf](PRD_Template.pdf) | Product Requirements Document — cahier des charges produit |
+| [JTBD.pdf](JTBD.pdf) | Jobs To Be Done — besoins utilisateurs |
+| [Find_a_nearby_restaurant_Journey_Map.pdf](Find_a_nearby_restaurant_Journey_Map.pdf) | Journey Map — parcours utilisateur |
+| [Find_nearby_restaurant_OST.pdf](Find_nearby_restaurant_OST.pdf) | Opportunity Solution Tree |
+| [Q1_feature_prioritarization.xlsx](Q1_feature_prioritarization.xlsx) | Priorisation des fonctionnalités Q1 |
+| [PLAN.md](PLAN.md) | Plan d'implémentation initial |
+| [RBAC.md](RBAC.md) | Documentation du contrôle d'accès par rôles |
