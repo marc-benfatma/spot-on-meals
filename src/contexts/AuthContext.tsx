@@ -10,6 +10,7 @@ interface AuthContextType {
   userRole: AppRole | null;
   isAdmin: boolean;
   canEdit: boolean;
+  isViewer: boolean;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signUp: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
