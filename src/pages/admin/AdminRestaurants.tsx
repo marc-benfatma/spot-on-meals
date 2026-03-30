@@ -47,10 +47,12 @@ export default function AdminRestaurants() {
           <h1 className="text-2xl font-bold">Restaurants</h1>
           <p className="text-muted-foreground">Manage your restaurant listings</p>
         </div>
-        <Button onClick={handleAdd}>
-          <Plus className="h-4 w-4 mr-2" />
-          Add Restaurant
-        </Button>
+        {canEdit && (
+          <Button onClick={handleAdd}>
+            <Plus className="h-4 w-4 mr-2" />
+            Add Restaurant
+          </Button>
+        )}
       </div>
 
       <Card>
