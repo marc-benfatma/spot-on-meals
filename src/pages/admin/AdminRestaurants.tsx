@@ -77,7 +77,7 @@ export default function AdminRestaurants() {
                   <TableHead>Price</TableHead>
                   <TableHead>Rating</TableHead>
                   <TableHead>Address</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  {canEdit && <TableHead className="text-right">Actions</TableHead>}
                 </TableRow>
               </TableHeader>
               <TableBody>
