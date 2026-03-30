@@ -136,6 +136,27 @@ export default function Auth() {
               {isLogin ? 'Sign In' : 'Create Account'}
             </Button>
           </form>
+          <div className="mt-4">
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full"
+              onClick={async () => {
+                setIsLoading(true);
+                const { error } = await signIn('test@test.com', 'testtest');
+                if (error) {
+                  toast({ title: 'Error', description: error.message, variant: 'destructive' });
+                } else {
+                  toast({ title: 'Demo mode', description: 'Connected as viewer (read-only).' });
+                  navigate('/admin');
+                }
+                setIsLoading(false);
+              }}
+              disabled={isLoading}
+            >
+              🔍 Demo — connexion avec test:test
+            </Button>
+          </div>
           <div className="mt-4 text-center text-sm">
             <button
               type="button"

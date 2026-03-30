@@ -66,7 +66,25 @@ describe('ProtectedRoute', () => {
     expect(screen.queryByText('Protected Content')).not.toBeInTheDocument();
   });
 
-  it('shows access denied for user without edit permission', () => {
+  it('shows access denied for user without edit permission when requireEdit', () => {
+    mockAuthState = {
+      user: { id: 'user-1' },
+      isLoading: false,
+      canEdit: false,
+      isAdmin: false,
+    };
+
+    render(
+      <ProtectedRoute requireEdit>
+        <div>Protected Content</div>
+      </ProtectedRoute>
+    );
+
+    expect(screen.getByText('Access Denied')).toBeInTheDocument();
+    expect(screen.queryByText('Protected Content')).not.toBeInTheDocument();
+  });
+
+  it('renders children for viewer (no requireEdit)', () => {
     mockAuthState = {
       user: { id: 'user-1' },
       isLoading: false,
@@ -80,8 +98,7 @@ describe('ProtectedRoute', () => {
       </ProtectedRoute>
     );
 
-    expect(screen.getByText('Access Denied')).toBeInTheDocument();
-    expect(screen.queryByText('Protected Content')).not.toBeInTheDocument();
+    expect(screen.getByText('Protected Content')).toBeInTheDocument();
   });
 
   it('renders children for user with edit permission', () => {

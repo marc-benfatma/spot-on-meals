@@ -12,7 +12,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { formatPriceLevel } from '@/lib/format';
 
 export default function AdminRestaurants() {
-  const { isAdmin } = useAuth();
+  const { isAdmin, canEdit } = useAuth();
   const { data: restaurants = [], isLoading } = useRestaurants();
   const { saveRestaurant, deleteRestaurant, isSaving } = useRestaurantCrud();
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -47,10 +47,12 @@ export default function AdminRestaurants() {
           <h1 className="text-2xl font-bold">Restaurants</h1>
           <p className="text-muted-foreground">Manage your restaurant listings</p>
         </div>
-        <Button onClick={handleAdd}>
-          <Plus className="h-4 w-4 mr-2" />
-          Add Restaurant
-        </Button>
+        {canEdit && (
+          <Button onClick={handleAdd}>
+            <Plus className="h-4 w-4 mr-2" />
+            Add Restaurant
+          </Button>
+        )}
       </div>
 
       <Card>
@@ -75,7 +77,7 @@ export default function AdminRestaurants() {
                   <TableHead>Price</TableHead>
                   <TableHead>Rating</TableHead>
                   <TableHead>Address</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  {canEdit && <TableHead className="text-right">Actions</TableHead>}
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -91,18 +93,20 @@ export default function AdminRestaurants() {
                       </div>
                     </TableCell>
                     <TableCell className="max-w-[200px] truncate">{restaurant.address}</TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button variant="ghost" size="icon" onClick={() => handleEdit(restaurant)}>
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        {isAdmin && (
-                          <Button variant="ghost" size="icon" onClick={() => setDeletingRestaurant(restaurant)}>
-                            <Trash2 className="h-4 w-4 text-destructive" />
+                    {canEdit && (
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-2">
+                          <Button variant="ghost" size="icon" onClick={() => handleEdit(restaurant)}>
+                            <Pencil className="h-4 w-4" />
                           </Button>
-                        )}
-                      </div>
-                    </TableCell>
+                          {isAdmin && (
+                            <Button variant="ghost" size="icon" onClick={() => setDeletingRestaurant(restaurant)}>
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          )}
+                        </div>
+                      </TableCell>
+                    )}
                   </TableRow>
                 ))}
               </TableBody>

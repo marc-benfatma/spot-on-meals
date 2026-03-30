@@ -6,9 +6,10 @@ import { Loader2 } from 'lucide-react';
 interface ProtectedRouteProps {
   children: ReactNode;
   requireAdmin?: boolean;
+  requireEdit?: boolean;
 }
 
-export function ProtectedRoute({ children, requireAdmin = false }: ProtectedRouteProps) {
+export function ProtectedRoute({ children, requireAdmin = false, requireEdit = false }: ProtectedRouteProps) {
   const { user, isLoading, canEdit, isAdmin } = useAuth();
   const location = useLocation();
 
@@ -24,13 +25,11 @@ export function ProtectedRoute({ children, requireAdmin = false }: ProtectedRout
     return <Navigate to="/auth" state={{ from: location }} replace />;
   }
 
-  // Check if user has required permissions
   if (requireAdmin && !isAdmin) {
     return <Navigate to="/" replace />;
   }
 
-  // For admin routes, user needs at least editor role
-  if (!canEdit) {
+  if (requireEdit && !canEdit) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">

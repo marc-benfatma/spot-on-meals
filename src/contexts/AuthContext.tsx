@@ -10,6 +10,7 @@ interface AuthContextType {
   userRole: AppRole | null;
   isAdmin: boolean;
   canEdit: boolean;
+  isViewer: boolean;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signUp: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
@@ -78,9 +79,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const isAdmin = userRole === 'admin';
   const canEdit = userRole === 'admin' || userRole === 'editor';
+  const isViewer = userRole === 'viewer';
 
   return (
-    <AuthContext.Provider value={{ user, session, isLoading, userRole, isAdmin, canEdit, signIn, signUp, signOut }}>
+    <AuthContext.Provider value={{ user, session, isLoading, userRole, isAdmin, canEdit, isViewer, signIn, signUp, signOut }}>
       {children}
     </AuthContext.Provider>
   );
