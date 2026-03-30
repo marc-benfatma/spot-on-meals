@@ -93,18 +93,20 @@ export default function AdminRestaurants() {
                       </div>
                     </TableCell>
                     <TableCell className="max-w-[200px] truncate">{restaurant.address}</TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button variant="ghost" size="icon" onClick={() => handleEdit(restaurant)}>
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        {isAdmin && (
-                          <Button variant="ghost" size="icon" onClick={() => setDeletingRestaurant(restaurant)}>
-                            <Trash2 className="h-4 w-4 text-destructive" />
+                    {canEdit && (
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-2">
+                          <Button variant="ghost" size="icon" onClick={() => handleEdit(restaurant)}>
+                            <Pencil className="h-4 w-4" />
                           </Button>
-                        )}
-                      </div>
-                    </TableCell>
+                          {isAdmin && (
+                            <Button variant="ghost" size="icon" onClick={() => setDeletingRestaurant(restaurant)}>
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          )}
+                        </div>
+                      </TableCell>
+                    )}
                   </TableRow>
                 ))}
               </TableBody>
